@@ -1,0 +1,26 @@
+Steps to run
+
+Step 1: Extract the Zip File
+After downloading the zip file, right-click on it and select Extract All.
+
+A folder named something like thyroid_predictor will be created.
+
+Step 2: Navigate to the extracted folder:
+
+Windows:
+Press Shift + Right Click inside the folder → click "Open PowerShell/Command window here"
+
+Step 3: install required libraries
+
+pip install flask pandas scikit-learn openpyxl deap joblib
+pip install -U scikit-learn==1.6.1
+
+Step 4: terminal write 
+python app.py (it will run the web app)
+
+if successful , Running on http://127.0.0.1:5000/ will appear
+
+Step 5: Open the browser
+go to : http://127.0.0.1:5000/
+select symptoms and age -> click Predict to get your result.
+

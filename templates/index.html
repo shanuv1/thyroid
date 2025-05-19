@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thyroid & Cancer Predictor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .input-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+    }
+    select, input {
+      width: 200px;
+      padding: 5px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Thyroid & Cancer Predictor</h1>
+
+  <form id="predictionForm">
+    <div class="input-group">
+      <label for="Age">Age</label>
+      <input type="number" name="Age" id="Age" required />
+    </div>
+
+    <!-- Dynamic feature checkboxes will be added here -->
+    <div id="featureInputs"></div>
+
+    <button type="submit">Predict</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    // This is passed from Flask backend (feature list)
+    const selectedFeatures = {{ features | tojson }};
+
+    const labelOptions = {
+      "Gender": ["M", "F"],
+      "Weight Gained": ["yes", "no"],
+      "Weight Loss": ["yes", "no"],
+      "Pregnant": ["yes", "no"],
+      "Irregular Periods": ["yes", "no"],
+      "Sensitivity to Cold/Heat": ["yes", "no"],
+      "Neck Swelling": ["yes", "no"],
+      "Dry Skin": ["yes", "no"],
+      "Puffy Face": ["yes", "no"],
+      "Poor Appetite": ["yes", "no"],
+      "Hoarse Voice": ["yes", "no"],
+      "Hair Loss": ["yes", "no"],
+      "Fatigue": ["yes", "no"],
+      "Memory Problem": ["yes", "no"],
+      "Family History": ["yes", "no"],
+      "Joint Pain": ["yes", "no"],
+      "Vegetarian Diet": ["yes", "no"],
+      "Ankle Instability": ["yes", "no"],
+      "Visual Disturbances": ["yes", "no"],
+      "Irritability": ["yes", "no"],
+      " Vertigo Sensation": ["yes", "no"],
+      "Hands Numbness and Tingling": ["yes", "no"]
+    };
+
+    const inputsDiv = document.getElementById("featureInputs");
+
+    selectedFeatures.forEach(feature => {
+      if (feature === "Age") return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "input-group";
+
+      const label = document.createElement("label");
+      label.textContent = feature;
+      wrapper.appendChild(label);
+
+      const options = labelOptions[feature];
+      if (options) {
+        const optionWrapper = document.createElement("div");
+
+        options.forEach(optionValue => {
+          const optionLabel = document.createElement("label");
+          optionLabel.textContent = optionValue;
+
+          const optionInput = document.createElement("input");
+          optionInput.type = "radio";
+          optionInput.name = feature;
+          optionInput.value = optionValue;
+
+          optionLabel.appendChild(optionInput);
+          optionWrapper.appendChild(optionLabel);
+        });
+
+        wrapper.appendChild(optionWrapper);
+      }
+
+      inputsDiv.appendChild(wrapper);
+    });
+
+    // Handle form submission
+    document.getElementById("predictionForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      const selectedFeaturesData = {};
+      formData.forEach((value, key) => {
+        selectedFeaturesData[key] = value;
+      });
+
+      const data = {
+        selectedFeatures: selectedFeaturesData,
+      };
+      console.log("Data sent to backend:", data);
+      
+      const res = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      document.getElementById("result").textContent = result.prediction
+        ? "Prediction: " + result.prediction
+        : "Error: " + result.error;
+    });
+  </script>
+</body>
+</html>
